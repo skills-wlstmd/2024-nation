@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  namespace: wsi
+  labels:
+    app: customer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: customer
+  template:
+    metadata:
+      labels:
+        app: customer
+    spec:
+      containers:
+        - name: customer-cnt
+          image: IMAGE
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: log-volume
+              mountPath: /log
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: customer-credentials
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: customer-credentials
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: customer-credentials
+                  key: MYSQL_HOST
+            - name: MYSQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: customer-credentials
+                  key: MYSQL_PORT
+            - name: MYSQL_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: customer-credentials
+                  key: MYSQL_DBNAME
+        - name: fluent-bit-cnt
+          image: fluent/fluent-bit:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2020
+              name: metrics
+              protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /fluent-bit/etc/
+            - name: log-volume
+              mountPath: /log
+      volumes:
+        - name: log-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: customer
+      nodeSelector:
+        type: app

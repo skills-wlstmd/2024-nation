@@ -1,0 +1,60 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: apdev-eks-cluster
+  version: "1.29"
+  region: ap-northeast-2
+  tags:
+    karpenter.sh/discovery: apdev-eks-cluster
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: aws-load-balancer-controller
+        namespace: kube-system
+      wellKnownPolicies:
+        awsLoadBalancerController: true
+
+vpc:
+  subnets:
+    public:
+      ap-northeast-2a: { id: public_a }
+      ap-northeast-2b: { id: public_b }
+    private:
+      ap-northeast-2a: { id: private_a }
+      ap-northeast-2b: { id: private_b }
+
+managedNodeGroups:
+  - name: eks-worker-nodegroup
+    labels: { app: worker }
+    instanceName: eks-worker-node
+    instanceType: t3.micro
+    amiFamily: Bottlerocket
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 4
+    privateNetworking: true
+    ssh:
+      publicKeyName: apdev
+      allow: true
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+
+addons:
+  - name: vpc-cni
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest

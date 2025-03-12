@@ -1,0 +1,12 @@
+#if($input.params('id').contains('admin'))
+{
+    "msg": "error"
+}
+#else
+{
+    "TableName": "serverless-user-table",
+    "Key": {
+        "id": {"S": "$input.params('id')"}
+    }
+}
+#end

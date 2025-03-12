@@ -1,0 +1,5 @@
+{
+    "TableName": "wsi-table",
+    "Key": {"name": {"S": "$input.params('name')"}
+    }
+}

@@ -1,0 +1,5 @@
+{
+    "id": $input.json('$.Item.id.S'),
+    "age": $input.json('$.Item.age.S'),
+    "company": $input.json('$.Item.company.S')
+}

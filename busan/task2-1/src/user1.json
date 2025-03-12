@@ -1,0 +1,63 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"ec2:RunInstances",
+				"ec2:CreateVolume"
+			],
+			"Resource": [
+				"arn:aws:ec2:*:*:volume/*",
+				"arn:aws:ec2:*:*:network-interface/*",
+				"arn:aws:ec2:*:*:instance/*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestTag/wsi-project": "developer"
+				}
+			}
+		},
+		{
+			"Effect": "Allow",
+			"Action": "ec2:CreateTags",
+			"Resource": [
+				"arn:aws:ec2:*:*:volume/*",
+				"arn:aws:ec2:*:*:network-interface/*",
+				"arn:aws:ec2:*:*:instance/*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"ec2:CreateAction": [
+						"RunInstances",
+						"CreateVolume"
+					]
+				}
+			}
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"ec2:Describe*",
+				"ec2:CreateSecurityGroup",
+				"ec2:ModifyNetworkInterfaceAttribute",
+				"ec2:DeleteSecurityGroup",
+				"ec2:AuthorizeSecurityGroupIngress"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": "ec2:RunInstances",
+			"Resource": [
+				"arn:aws:ec2:*::snapshot/*",
+				"arn:aws:ec2:*::image/*",
+				"arn:aws:ec2:*:*:volume/*",
+				"arn:aws:ec2:*:*:subnet/*",
+				"arn:aws:ec2:*:*:security-group/*",
+				"arn:aws:ec2:*:*:network-interface/*",
+				"arn:aws:ec2:*:*:key-pair/*"
+			]
+		}
+	]
+}

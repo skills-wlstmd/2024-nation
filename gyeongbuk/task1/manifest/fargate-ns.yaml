@@ -1,0 +1,6 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: wsi
+  labels:
+    aws-observability: enabled

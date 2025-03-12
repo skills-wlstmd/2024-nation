@@ -1,0 +1,5 @@
+{
+    "name": $input.json('$.Item.name.S'),
+    "age": $input.json('$.Item.age.N'),
+    "country": $input.json('$.Item.country.S')
+}

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  namespace: app
+  labels:
+    app: order
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      serviceAccount: dynamodb-pull-sa
+      containers:
+        - name: order-cnt
+          image: IMAGE
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: REGION
+      nodeSelector:
+        skills: app

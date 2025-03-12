@@ -1,0 +1,4 @@
+fields eventTime as eventTime, eventSource as eventSource, userIdentity.accountId as accountId, requestParameters.filters.1.value as sessionId, eventName as eventName, requestParameters.state as state
+| filter eventName == "DescribeSessions"
+| display eventTime, eventSource, state, accountId, sessionId
+| limit 10000

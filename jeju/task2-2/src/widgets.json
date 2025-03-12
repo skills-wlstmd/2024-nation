@@ -1,0 +1,58 @@
+{
+    "widgets": [
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 0,
+            "width": 24,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [
+                        "ssm-connection",
+                        "ssm-connection",
+                        {
+                            "label": "SSM Access: ${LAST}"
+                        }
+                    ]
+                ],
+                "period": 1,
+                "stat": "Sum",
+                "region": "ap-northeast-2",
+                "title": "SSM Access Count",
+                "yAxis": {
+                    "left": {
+                        "max": 30
+                    }
+                },
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "color": "#ffbb78",
+                            "label": "Warning",
+                            "value": 10,
+                            "fill": "above"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "log",
+            "x": 0,
+            "y": 6,
+            "width": 24,
+            "height": 6,
+            "properties": {
+                "title": "SSM Access Logs",
+                "query": "SOURCE 'cg-logs' | fields eventTime as eventTime, eventSource as eventSource, userIdentity.accountId as accountId, requestParameters.filters.1.value as sessionId, eventName as eventName, requestParameters.state as state | display eventTime, eventSource, state, accountId, sessionId | filter eventName == \"DescribeSessions\" | limit 10000",
+                "region": "ap-northeast-2",
+                "logGroupNames": [
+                    "cg-logs"
+                ],
+                "stacked": false,
+                "view": "table"
+            }
+        }
+    ]
+}

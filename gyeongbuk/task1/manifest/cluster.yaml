@@ -1,0 +1,60 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: wsi-eks-cluster
+  version: "1.29"
+  region: ap-northeast-2
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: aws-load-balancer-controller
+        namespace: kube-system
+      wellKnownPolicies:
+        awsLoadBalancerController: true
+    - metadata:
+        name: cert-manager
+        namespace: cert-manager
+      wellKnownPolicies:
+        certManager: true
+
+vpc:
+  subnets:
+    public:
+      ap-northeast-2a: { id: public_a }
+      ap-northeast-2b: { id: public_b }
+    private:
+      ap-northeast-2a: { id: private_a }
+      ap-northeast-2b: { id: private_b }
+
+managedNodeGroups:
+  - name: wsi-app-nodegroup
+    labels: { type: app }
+    instanceName: wsi-app-node
+    instanceType: t3.large
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 20
+    privateNetworking: true
+
+  - name: wsi-addon-nodegroup
+    labels: { type: addon }
+    instanceName: wsi-addon-node
+    instanceType: t3.medium
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 20
+    privateNetworking: true
+
+fargateProfiles:
+  - name: wsi-app-fargate-profile
+    selectors:
+      - namespace: wsi
+        labels:
+          type: fargate

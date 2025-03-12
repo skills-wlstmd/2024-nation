@@ -1,0 +1,56 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: wsc2024-eks-cluster
+  version: "1.29"
+  region: us-east-1
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+
+secretsEncryption:
+  keyARN: kms_arn
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: aws-load-balancer-controller
+        namespace: kube-system
+      wellKnownPolicies:
+        awsLoadBalancerController: true
+    - metadata:
+        name: cert-manager
+        namespace: cert-manager
+      wellKnownPolicies:
+        certManager: true
+
+vpc:
+  subnets:
+    public:
+      ap-northeast-2a: { id: public_a }
+      ap-northeast-2b: { id: public_b }
+    private:
+      ap-northeast-2a: { id: private_a }
+      ap-northeast-2b: { id: private_b }
+
+managedNodeGroups:
+  - name: wsc2024-db-application-ng
+    labels: { app: db }
+    instanceName: wsc2024-db-application-node
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 20
+    privateNetworking: true
+
+  - name: wsc2024-other-ng
+    labels: { app: other }
+    instanceName: wsc2024-other-node
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 20
+    privateNetworking: true

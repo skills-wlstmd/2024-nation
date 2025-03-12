@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: nginx
+  labels:
+    cloudhrdk.com/env: beta
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      cloudhrdk.com/env: beta
+  template:
+    metadata:
+      labels:
+        cloudhrdk.com/env: beta
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80

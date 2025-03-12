@@ -1,0 +1,19 @@
+﻿version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - AccountID=$(aws sts get-caller-identity --query "Account" --output text)
+      - ECR_NAME=gwangju-repo
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $AccountID.dkr.ecr.ap-northeast-2.amazonaws.com
+      - ECR_URI=$AccountID.dkr.ecr.ap-northeast-2.amazonaws.com/$ECR_NAME
+      - RANDOM_IMAGE_TAG=$(cat /dev/urandom | tr -dc 'a-z' | fold -w 8 | sed 1q)
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $ECR_URI:$RANDOM_IMAGE_TAG .
+  post_build:
+    commands:
+      - echo Pushing the Docker images...
+      - docker push $ECR_URI:$RANDOM_IMAGE_TAG

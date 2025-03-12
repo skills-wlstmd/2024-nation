@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  namespace: wsi
+  labels:
+    app: order
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+        type: fargate
+    spec:
+      serviceAccount: dynamodb-pull-sa
+      containers:
+        - name: order-cnt
+          image: IMAGE
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: log-volume
+              mountPath: /log
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "1Gi"
+              cpu: "0.5"
+          env:
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: order-credentials
+                  key: REGION
+        - name: fluent-bit-cnt
+          image: fluent/fluent-bit:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 2020
+              name: metrics
+              protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /fluent-bit/etc/
+            - name: log-volume
+              mountPath: /log
+      volumes:
+        - name: log-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: order

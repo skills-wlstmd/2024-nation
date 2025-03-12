@@ -1,0 +1,35 @@
+﻿version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - Account=$(aws sts get-caller-identity --query Account --output text)
+      - region="us-west-1"
+      - ECR_NAME="wsc2024-repo"
+      - aws ecr get-login-password --region $region | docker login --username AWS --password-stdin $Account.dkr.ecr.$region.amazonaws.com
+      - IMAGE_TAG="latest"
+      - REPOSITORY_URI=$Account.dkr.ecr.$region.amazonaws.com/$ECR_NAME
+      - ECR_URL=$Account.dkr.ecr.$region.amazonaws.com/$ECR_NAME:$IMAGE_TAG
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo -n "F" >> Dockerfile ; echo -n "R" >> Dockerfile ; echo -n "O" >> Dockerfile ; echo -n "M " >> Dockerfile ; echo "python:3.12-alpine" >> Dockerfile
+      - echo "WORKDIR /app"
+      - echo "ADD . ." >> Dockerfile
+      - echo "RUN pip install -r requirements.txt" >> Dockerfile
+      - echo "RUN apk update" >> Dockerfile
+      - echo "RUN apk add curl" >> Dockerfile
+      - echo -n "C" >> Dockerfile ; echo -n "M" >> Dockerfile ; echo -n "D " >> Dockerfile ; echo '["python3", "main.py"]' >> Dockerfile
+      - docker build -t $ECR_URL .
+      - rm -rf Dockerfile
+      - docker push $ECR_URL
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - sed -i "s|ACCOUNT_ID|$Account|g" taskdef.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+artifacts:
+  files:
+    - imageDetail.json
+    - taskdef.json
+    - appspec.yml

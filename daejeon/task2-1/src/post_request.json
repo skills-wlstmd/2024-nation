@@ -1,0 +1,8 @@
+{
+    "TableName": "wsi-table",
+    "Item": {
+        "name": {"S": "$input.path('$.name')"},
+        "age": {"N": "$input.path('$.age')"},
+        "country": {"S": "$input.path('$.country')"}
+    }
+}

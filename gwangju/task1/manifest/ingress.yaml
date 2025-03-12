@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+  namespace: app
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /v1/customer
+            pathType: Prefix
+            backend:
+              service:
+                name: customer
+                port:
+                  number: 8080
+          - path: /v1/product
+            pathType: Prefix
+            backend:
+              service:
+                name: product
+                port:
+                  number: 8080
+          - path: /v1/order
+            pathType: Prefix
+            backend:
+              service:
+                name: order
+                port:
+                  number: 8080
+status:
+  loadBalancer:
+    ingress:
+      - ip: SVC_ID
